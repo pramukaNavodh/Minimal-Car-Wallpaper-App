@@ -8,6 +8,7 @@ import { downloadCanvas } from '@/utils/download';
 
 interface CanvasAreaProps {
   resolution: Resolution;
+  onDownloadRef?: (fn: () => void) => void;
 }
 
 // Default resolution list
@@ -35,7 +36,7 @@ interface ExtendedTextElement extends TextElement {
   scaleY: number;
 }
 
-export default function CanvasArea({ resolution }: CanvasAreaProps) {
+export default function CanvasArea({ resolution, onDownloadRef }: CanvasAreaProps) {
   const { width: canvasWidth, height: canvasHeight } = RESOLUTIONS[resolution];
   const stageRef = useRef<any>(null);
   const [cars, setCars] = useState<CarElement[]>([]);
@@ -159,16 +160,14 @@ export default function CanvasArea({ resolution }: CanvasAreaProps) {
       downloadCanvas(stageRef.current, resolution, backgroundColor);
     }
   };
-
-  // Update refs on state change
   useEffect(() => {
-    // Clear old refs
-    shapeRefs.current.clear();
-  }, [cars, texts]);
+  if (onDownloadRef) {
+    onDownloadRef(download);
+  }
+}, [onDownloadRef, resolution, backgroundColor]);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">
-      <button onClick={download} className="absolute top-4 right-4 z-10 bg-blue-500 text-white px-4 py-2 rounded">Download</button>
       <div className="w-[300px] h-[500px] md:w-[400px] md:h-[700px] relative overflow-hidden"> {/* Fixed viewport */}
         <Stage
           width={canvasWidth}
